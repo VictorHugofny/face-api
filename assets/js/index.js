@@ -11,7 +11,7 @@ const startVideo = () => {
 };
 
 const loadLabels = () => {
-  const labels = ["Matheus Castiglioni"];
+  const labels = ["Victor Hugo", "Felipe Neto", "Douglas"];
   return Promise.all(
     labels.map(async (label) => {
       const descriptions = [];
@@ -48,6 +48,7 @@ cam.addEventListener("play", async () => {
   const labels = await loadLabels();
   faceapi.matchDimensions(canvas, canvasSize);
   document.body.appendChild(canvas);
+  //decção do rosto, idade, nome, sexo
   setInterval(async () => {
     const detections = await faceapi
       .detectAllFaces(cam, new faceapi.TinyFaceDetectorOptions())
@@ -56,14 +57,19 @@ cam.addEventListener("play", async () => {
       .withAgeAndGender()
       .withFaceDescriptors();
     const resizedDetections = faceapi.resizeResults(detections, canvasSize);
+    //comparar rostos com base dados
     const faceMatcher = new faceapi.FaceMatcher(labels, 0.6);
     const results = resizedDetections.map((d) =>
       faceMatcher.findBestMatch(d.descriptor)
     );
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+    //desenhar detecsões
     faceapi.draw.drawDetections(canvas, resizedDetections);
+    //metodo de detecção de pontos do rosto (desenhar)
     faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+    //metodo de detecção de expressões
     faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+
     resizedDetections.forEach((detection) => {
       const { age, gender, genderProbability } = detection;
       new faceapi.draw.DrawTextField(
@@ -74,6 +80,7 @@ cam.addEventListener("play", async () => {
         detection.detection.box.topRight
       ).draw(canvas);
     });
+
     results.forEach((result, index) => {
       const box = resizedDetections[index].detection.box;
       const { label, distance } = result;
