@@ -1,5 +1,6 @@
 const cam = document.getElementById("cam");
 
+//configuração para usar o video
 const startVideo = () => {
   navigator.getUserMedia(
     {
@@ -10,6 +11,7 @@ const startVideo = () => {
   );
 };
 
+//carregando dados para comparação IA
 const loadLabels = () => {
   const labels = ["Victor Hugo", "Felipe Neto", "Douglas"];
   return Promise.all(
@@ -30,6 +32,7 @@ const loadLabels = () => {
   );
 };
 
+//recebendo dados de forma assincrona
 Promise.all([
   faceapi.nets.tinyFaceDetector.loadFromUri("/assets/lib/face-api/models"),
   faceapi.nets.faceLandmark68Net.loadFromUri("/assets/lib/face-api/models"),
@@ -41,6 +44,8 @@ Promise.all([
 
 cam.addEventListener("play", async () => {
   const canvas = faceapi.createCanvasFromMedia(cam);
+
+  //tamanho da tela de identificação
   const canvasSize = {
     width: cam.width,
     height: cam.height,
@@ -50,8 +55,11 @@ cam.addEventListener("play", async () => {
   document.body.appendChild(canvas);
   //decção do rosto, idade, nome, sexo
   setInterval(async () => {
+
     const detections = await faceapi
+      //quadrado em volta do rosto
       .detectAllFaces(cam, new faceapi.TinyFaceDetectorOptions())
+      //Pontos, expressoes, idade..
       .withFaceLandmarks()
       .withFaceExpressions()
       .withAgeAndGender()
